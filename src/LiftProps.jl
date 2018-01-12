@@ -1,5 +1,7 @@
 module LiftProps
 
+export fitliftslope,findclmax,findclmaxlinear,findclmin
+
 """
     findclmax(aoa,cl)
 Determines clmax as greatest lift coefficient
@@ -256,7 +258,5 @@ function findclmaxlinear(aoa,cl,liftslope::Real,zeroliftangle::Real;
   end
   return aoaclmaxlinear,clmaxlinear
 end #findclmaxlinear
-
-export fitliftslope,findclmax,findclmaxlinear,findclmin
 
 end #module
