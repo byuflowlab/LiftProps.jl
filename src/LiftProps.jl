@@ -4,7 +4,7 @@ export fitliftslope,findclmax,findclmaxlinear,findclmin
 
 """
     findclmax(aoa,cl)
-Determines clmax as greatest lift coefficient
+Determines clmax as greatest lift coefficient. Returns aoaclmax, clmax
 """
 function findclmax(aoa,cl)
   indclmax = indmax(cl)
@@ -17,6 +17,7 @@ end #findclmax
     findclmax(aoa,cl,npnts::Integer)
 Determines clmax as when all angles greater than the clmax angle for `npnts`
 data points are less than clmax. Assumes points are ordered by angle of attack.
+Returns aoaclmax, clmax
 """
 function findclmax(aoa,cl,npnts::Integer)
   # default to basic method if conditions not satisfied
@@ -38,6 +39,7 @@ end #findclmax
     findclmax(aoa,cl,range::AbstractFloat)
 Determines clmax as when all angles greater than the clmax angles for `range`
 radians are less than clmax. Assumes points are ordered by angle of attack.
+Returns aoaclmax, clmax
 """
 function findclmax(aoa,cl,range::AbstractFloat)
   # default to basic method if conditions not satisfied
@@ -64,7 +66,7 @@ end #findclmax
 
 """
     findclmin(aoa,cl)
-Determines clmin as smallest lift coefficient.
+Determines clmin as smallest lift coefficient.  Returns aoaclmin, clmin
 """
 function findclmin(aoa,cl)
   indclmin = indmin(cl)
@@ -77,6 +79,7 @@ end #findclmax
     findclmin(aoa,cl,npnts::Integer)
 Determines clmin as when all angles less than the clmin angle for `npnts` data
 points are greater than clmin. Assumes points are ordered by angle of attack.
+Returns aoaclmin, clmin
 """
 function findclmin(aoa,cl,npnts::Integer)
   # default to basic method if conditions not satisfied
@@ -97,7 +100,7 @@ end #findclmax
 """
     findclmin(aoa,cl,range::AbstractFloat)
 Determines clmin as when all points less than the clmin angle for `range`
-radians are greater than clmin
+radians are greater than clmin. Returns aoaclmin, clmin
 """
 function findclmin(aoa,cl,range::AbstractFloat)
   # default to basic method if conditions not satisfied
@@ -126,7 +129,7 @@ end #findclmax
 Returns the lift slope and zero lift angle of attack as well as the data used
 to compute these parameters.  The tolerance `tol` (in terms of cl) for the fit
 and whether to include all data points below zero angle of attack `allnegfit`
-may be specified.
+may be specified. Returns liftslope,zeroliftangle,aoafit,clfit
 """
 function fitliftslope(aoa,cl,tol::Real=0.05,allnegfit::Bool=false)
 
@@ -233,7 +236,7 @@ end
     findclmaxlinear(aoa,cl,liftslope::Real,zeroliftangle::Real;tol::Real=0.1,
     interpolate::Bool=true)
 Returns the angle of attack and cl of the maximum linear lift coefficient. `tol`
-is used to determine the liftslope line tolerance.
+is used to determine the liftslope line tolerance. Returns aoaclmaxlinear,clmaxlinear
 """
 function findclmaxlinear(aoa,cl,liftslope::Real,zeroliftangle::Real;
   tol::Real=0.1,interpolate::Bool=true)
