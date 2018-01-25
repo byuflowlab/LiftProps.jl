@@ -242,12 +242,12 @@ function findclmaxlinear(aoa,cl,liftslope::Real,zeroliftangle::Real;
   tol::Real=0.1,interpolate::Bool=true)
 
   # find where difference in cl is greater than tol
-  local indclmaxlinear
+  indclmaxlinear = 0
   idxzero = indmin(abs.(aoa))
   for i = idxzero:length(aoa)
     predictedcl = liftslope*(aoa[i]-zeroliftangle)
+    indclmaxlinear = i
     if abs(cl[i]-predictedcl) > tol
-      indclmaxlinear = i
       break
     end
   end
