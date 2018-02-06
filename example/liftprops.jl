@@ -14,9 +14,9 @@ open(airfoil_file,"r") do f
   end
 end
 
-aoa = linspace(-15,20,45)*pi/180
+aoa = linspace(-15,20,45)
 
-cl,cd,cdp,cm,converged = XfoilSweep.xfoilsweep(x,y,aoa,400000,printdata=true,clminstop=true,clmaxstop=true)
+cl,cd,cdp,cm,converged = Xfoil.xfoilsweep(x,y,aoa,400000.0,printdata=true,clminstop=true,clmaxstop=true)
 
 aoa = aoa[find(converged)]
 cl = cl[find(converged)]
@@ -82,4 +82,3 @@ plot!([clmin2],seriestype = [:hline],label = "\$c_{l,min,2}\$",
 plot!([clmin3],seriestype = [:hline],label = "\$c_{l,min,3}\$",
     linestyle = :dot,linewidth = 3,linecolor = :purple)
 plot!(show = true)
-
