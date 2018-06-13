@@ -131,22 +131,22 @@ to compute these parameters.  The tolerance `tol` (in terms of cl) for the fit
 and whether to include all data points below zero angle of attack `allnegfit`
 may be specified. Returns liftslope,zeroliftangle,aoafit,clfit
 """
-function fitliftslope(aoa,cl,tol::Real=0.05,allnegfit::Bool=false)
+function fitliftslope(aoa,cl,tol::Real=0.05,allnegfit::Bool=false,center=0.0)
 
   if length(aoa) != length(cl)
     error("aoa and cl must have the same length")
   end
 
   # split into positive and negative angles of attack
-  idxzero = indmin(abs.(aoa))
-  idxneg = find(aoa .< aoa[idxzero])
+  idxcenter = indmin(abs.(aoa-center))
+  idxneg = find(aoa .< aoa[idxcenter])
   sort!(idxneg,rev = true)
-  idxpos = find(aoa .> aoa[idxzero])
+  idxpos = find(aoa .> aoa[idxcenter])
   sort!(idxpos)
 
   # initialize arrays of data to fit
-  aoafit = [aoa[idxzero]]
-  clfit = [cl[idxzero]]
+  aoafit = [aoa[idxcenter]]
+  clfit = [cl[idxcenter]]
   # create indexes for increasing and decreasing aoa
   ipos = 1
   ineg = 1
@@ -161,7 +161,9 @@ function fitliftslope(aoa,cl,tol::Real=0.05,allnegfit::Bool=false)
     lowerflag = true
   end
   # compute lift slope and zero lift angle of attack
-  local liftslope, zeroliftangle
+  success = false
+  liftslope = 2*pi
+  zeroliftangle = 0.0
   for i = 1:(length(idxpos)+length(idxneg))
     # add positive angle of attack point to fit if closest to zero aoa
     if upperflag == false
@@ -186,6 +188,7 @@ function fitliftslope(aoa,cl,tol::Real=0.05,allnegfit::Bool=false)
         if any(yerror .< tol) #slope > 0.5*liftslope ||
           liftslope = lsqsol[1]
           zeroliftangle = lsqsol[2]/lsqsol[1]
+          success = true
         else # if not on linear portion remove from fit
           aoafit = aoafit[1:(end-1)]
           clfit = clfit[1:(end-1)]
@@ -212,6 +215,7 @@ function fitliftslope(aoa,cl,tol::Real=0.05,allnegfit::Bool=false)
         if any(abs.(yerror) .< tol) || allnegfit
           liftslope = lsqsol[1]
           zeroliftangle = lsqsol[2]/lsqsol[1]
+          success = true
         else # if not on linear portion remove from fit
           aoafit = aoafit[2:end]
           clfit = clfit[2:end]
@@ -229,6 +233,10 @@ function fitliftslope(aoa,cl,tol::Real=0.05,allnegfit::Bool=false)
       break
     end
   end
+  if success == false
+    liftslope,zeroliftangle,aoafit,clfit = fitliftslope(aoa,cl,tol,allnegfit,aoa[idxcenter]+1.0*pi/180)
+  end
+
   return liftslope,zeroliftangle,aoafit,clfit
 end
 
