@@ -1,4 +1,4 @@
-import XfoilSweep
+import Xfoil
 import LiftProps
 using Plots
 pyplot()
@@ -6,23 +6,23 @@ pyplot()
 airfoil_file = "naca2412.dat"
 
 open(airfoil_file,"r") do f
-  global x = []
-  global y = []
+  global x = Float64[]
+  global y = Float64[]
   for line in eachline(f)
-    x = append!(x,parse(split(chomp(line))[1]))
-    y = append!(y,parse(split(chomp(line))[2]))
+    x = append!(x,Meta.parse(split(chomp(line))[1]))
+    y = append!(y,Meta.parse(split(chomp(line))[2]))
   end
 end
 
-aoa = linspace(-15,20,45)
+aoa = range(-15,stop=20,length=45)
 
 cl,cd,cdp,cm,converged = Xfoil.xfoilsweep(x,y,aoa,400000.0,printdata=true,clminstop=true,clmaxstop=true)
 
-aoa = aoa[find(converged)]
-cl = cl[find(converged)]
-cd = cd[find(converged)]
-cdp = cdp[find(converged)]
-cm = cm[find(converged)]
+aoa = aoa[findall(converged)]
+cl = cl[findall(converged)]
+cd = cd[findall(converged)]
+cdp = cdp[findall(converged)]
+cm = cm[findall(converged)]
 
 liftslope,zeroliftangle,aoafit,clfit = LiftProps.fitliftslope(aoa,cl)
 _,clmax1 = LiftProps.findclmax(aoa,cl)
@@ -44,17 +44,17 @@ plot!(legendfont = myfont,guidefont = myfont,tickfont = myfont)
 # Plot XFOIL Data
 scatter!(aoa*180/pi,cl,label = "XFOIL Data",markersize=5,markercolor=:red)
 # Plot Linear Lift Slope Line
-indclmin = indmin(abs.(cl-minimum(cl)))
-liftslopelinex = linspace(min(zeroliftangle-2.5*pi/180,aoa[indclmin]),maximum(aoa),1000)
-liftslopeliney = liftslope*(liftslopelinex-zeroliftangle)
-minAoAidx = indmin(abs.(minimum(cl) - liftslopeliney))
-maxAoAidx = indmin(abs.(maximum(cl) - liftslopeliney))
+indclmin = argmin(abs.(cl.-minimum(cl)))
+liftslopelinex = range(min(zeroliftangle-2.5*pi/180, aoa[indclmin]),stop=maximum(aoa),length=1000)
+liftslopeliney = liftslope*(liftslopelinex.-zeroliftangle)
+minAoAidx = argmin(abs.(minimum(cl) .- liftslopeliney))
+maxAoAidx = argmin(abs.(maximum(cl) .- liftslopeliney))
 minAoA = liftslopelinex[minAoAidx]
 maxAoA = liftslopelinex[maxAoAidx]
-liftslopelinex = linspace(min(zeroliftangle-2.5*pi/180,minAoA),maxAoA,1000)
-liftslopeliney = liftslope*(liftslopelinex-zeroliftangle)
-plot!(liftslopelinex*180/pi,liftslopeliney,linewidth=2,
-    label="Linear Lift Slope Line",linecolor=:blue)
+liftslopelinex = range(min(zeroliftangle.-2.5*pi/180,minAoA), stop=maxAoA, length=1000)
+liftslopeliney = liftslope*(liftslopelinex.-zeroliftangle)
+plot!(liftslopelinex*180/pi,liftslopeliney, linewidth=2,
+    label="Linear Lift Slope Line", linecolor=:blue)
 # Plot Linear Lift Slope Line Data
 scatter!(aoafit*180/pi,clfit,label = "Least Squares Data",
     markersize = 8,markercolor = :red,markershape = :x)

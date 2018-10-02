@@ -1,0 +1,6 @@
+authors = ["Taylor McDonnell <taylor.golden.mcdonnell@gmail.com>"]
+name = "LiftProps"
+uuid = "1585ea48-c68b-11e8-3690-4ddd6e5c9d83"
+version = "0.1.0"
+
+[deps]
