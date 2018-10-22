@@ -7,7 +7,7 @@ export fitliftslope,findclmax,findclmaxlinear,findclmin
 Determines clmax as greatest lift coefficient. Returns aoaclmax, clmax
 """
 function findclmax(aoa,cl)
-  indclmax = indmax(cl)
+  indclmax = argmax(cl)
   clmax = cl[indclmax]
   aoaclmax = aoa[indclmax]
   return aoaclmax,clmax
@@ -23,7 +23,7 @@ function findclmax(aoa,cl,npnts::Integer)
   # default to basic method if conditions not satisfied
   aoaclmax,clmax = findclmax(aoa,cl)
   # start at zero
-  idxzero = indmin(abs.(aoa))
+  idxzero = argmin(abs.(aoa))
   for i = idxzero:length(cl)-npnts
     # check if all points in range are less than current point
     if count(cl[(i+1):(i+npnts)] .> cl[i]) == 0
@@ -45,10 +45,10 @@ function findclmax(aoa,cl,range::AbstractFloat)
   # default to basic method if conditions not satisfied
   aoaclmax,clmax = findclmax(aoa,cl)
   # start at zero
-  idxzero = indmin(abs.(aoa))
+  idxzero = argmin(abs.(aoa))
   for i = idxzero:length(cl)
     # find index of point approximately `range` greater
-    idx = indmin(abs.(aoa[i]+range-aoa))
+    idx = argmin(abs.(aoa[i]+range-aoa))
     if idx == i
       break
     else
@@ -69,7 +69,7 @@ end #findclmax
 Determines clmin as smallest lift coefficient.  Returns aoaclmin, clmin
 """
 function findclmin(aoa,cl)
-  indclmin = indmin(cl)
+  indclmin = argmin(cl)
   clmin = cl[indclmin]
   aoaclmin = aoa[indclmin]
   return aoaclmin,clmin
@@ -85,7 +85,7 @@ function findclmin(aoa,cl,npnts::Integer)
   # default to basic method if conditions not satisfied
   aoaclmin,clmin = findclmin(aoa,cl)
   # start at zero
-  idxzero = indmin(abs.(aoa))
+  idxzero = argmin(abs.(aoa))
   for i = idxzero:-1:(npnts+1)
     # check if all points in range are less than current point
     if count(cl[(i-1):-1:(i-npnts)] .< cl[i]) == 0
@@ -106,10 +106,10 @@ function findclmin(aoa,cl,range::AbstractFloat)
   # default to basic method if conditions not satisfied
   aoaclmin,clmin = findclmin(aoa,cl)
   # start at zero
-  idxzero = indmin(abs.(aoa))
+  idxzero = argmin(abs.(aoa))
   for i = idxzero:-1:1
     # find index of point approximately `range` less
-    idx = indmin(abs.(aoa[i]-range-aoa))
+    idx = argmin(abs.(aoa[i]-range-aoa))
     if idx == i
       break
     else
@@ -138,7 +138,7 @@ function fitliftslope(aoa,cl,tol::Real=0.05,allnegfit::Bool=false,center=0.0)
   end
 
   # split into positive and negative angles of attack
-  idxcenter = indmin(abs.(aoa-center))
+  idxcenter = argmin(abs.(aoa-center))
   idxneg = find(aoa .< aoa[idxcenter])
   sort!(idxneg,rev = true)
   idxpos = find(aoa .> aoa[idxcenter])
@@ -251,7 +251,7 @@ function findclmaxlinear(aoa,cl,liftslope::Real,zeroliftangle::Real;
 
   # find where difference in cl is greater than tol
   indclmaxlinear = 0
-  idxzero = indmin(abs.(aoa))
+  idxzero = argmin(abs.(aoa))
   for i = idxzero:length(aoa)
     predictedcl = liftslope*(aoa[i]-zeroliftangle)
     indclmaxlinear = i
