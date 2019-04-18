@@ -138,10 +138,10 @@ function fitliftslope(aoa,cl,tol::Real=0.05,allnegfit::Bool=false,center=0.0)
   end
 
   # split into positive and negative angles of attack
-  idxcenter = argmin(abs.(aoa-center))
-  idxneg = find(aoa .< aoa[idxcenter])
+  idxcenter = argmin(abs.(aoa .- center))
+  idxneg = findall(aoa .< aoa[idxcenter])
   sort!(idxneg,rev = true)
-  idxpos = find(aoa .> aoa[idxcenter])
+  idxpos = findall(aoa .> aoa[idxcenter])
   sort!(idxpos)
 
   # initialize arrays of data to fit
@@ -182,7 +182,7 @@ function fitliftslope(aoa,cl,tol::Real=0.05,allnegfit::Bool=false,center=0.0)
             liftslope = lsqsol[1]
         end
         # get slope and error of added point
-        yerror = lsqsol[1]*(aoa[idxpos[ipos:end]]-lsqsol[2]/lsqsol[1])-cl[idxpos[ipos:end]]
+        yerror = lsqsol[1]*(aoa[idxpos[ipos:end]].-lsqsol[2]/lsqsol[1]).-cl[idxpos[ipos:end]]
         # slope = (clfit[end] - clfit[end-1])/(aoafit[end] - aoafit[end-1])
         # check if on linear portion of lift curve
         if any(yerror .< tol) #slope > 0.5*liftslope ||
@@ -205,12 +205,12 @@ function fitliftslope(aoa,cl,tol::Real=0.05,allnegfit::Bool=false,center=0.0)
     if lowerflag == false
       if upperflag == true || abs(aoa[idxneg[ineg]]) <= abs(aoa[idxpos[ipos]])
         # add point
-        unshift!(aoafit,aoa[idxneg[ineg]])
-        unshift!(clfit,cl[idxneg[ineg]])
+        pushfirst!(aoafit,aoa[idxneg[ineg]])
+        pushfirst!(clfit,cl[idxneg[ineg]])
         # create least squares fit
         lsqsol = hcat(aoafit, -ones(length(aoafit)))\clfit
         # get error of added point
-        yerror = lsqsol[1]*(aoa[idxneg[ineg:end]]-lsqsol[2]/lsqsol[1])-cl[idxneg[ineg:end]]
+        yerror = lsqsol[1]*(aoa[idxneg[ineg:end]].-lsqsol[2]/lsqsol[1]).-cl[idxneg[ineg:end]]
         # check if on linear portion of lift curve
         if any(abs.(yerror) .< tol) || allnegfit
           liftslope = lsqsol[1]
